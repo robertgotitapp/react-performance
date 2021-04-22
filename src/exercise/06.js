@@ -1,6 +1,6 @@
 // Fix "perf death by a thousand cuts"
-// 💯 separate contexts
-// http://localhost:3000/isolated/final/06.extra-1.js
+// 💯 write an HOC to get a slice of app state
+// http://localhost:3000/isolated/final/06.extra-3.js
 
 import * as React from 'react'
 import {
@@ -116,9 +116,9 @@ function withStateSlice(Comp, slice) {
   return React.memo(React.forwardRef(Wrapper))
 }
 
-function Cell ({cell, row, column}) {
+function Cell({state: cell, row, column}) {
   const dispatch = useAppDispatch()
-  const handleClick = React.useCallback(() => dispatch({type: 'UPDATE_GRID_CELL', row, column}), [dispatch, row, column])
+  const handleClick = () => dispatch({type: 'UPDATE_GRID_CELL', row, column})
   return (
     <button
       className="cell"
@@ -132,9 +132,7 @@ function Cell ({cell, row, column}) {
     </button>
   )
 }
-
 Cell = withStateSlice(Cell, (state, {row, column}) => state.grid[row][column])
-
 
 function DogNameInput() {
   const [state, dispatch] = useDogState()
@@ -162,6 +160,7 @@ function DogNameInput() {
     </form>
   )
 }
+
 function App() {
   const forceRerender = useForceRerender()
   return (
