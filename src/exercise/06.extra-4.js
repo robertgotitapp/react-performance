@@ -1,15 +1,9 @@
-// Starting point for the Recoil Extra Credit
-// 💯 use recoil (exercise)
-// http://localhost:3000/isolated/exercise/06.extra-4.js
+// Fix "perf death by a thousand cuts"
+// 💯 use recoil (final)
+// http://localhost:3000/isolated/final/06.extra-4.js
 
 import * as React from 'react'
-import {
-  useForceRerender,
-  useDebouncedState,
-  AppGrid,
-  updateGridState,
-  updateGridCellState,
-} from '../utils'
+import {useForceRerender, useDebouncedState, AppGrid} from '../utils'
 import {RecoilRoot, useRecoilState, useRecoilCallback, atomFamily} from 'recoil'
 
 const AppStateContext = React.createContext()
@@ -19,8 +13,9 @@ const initialGrid = Array.from({length: 100}, () =>
 )
 
 const cellAtoms = atomFamily({
-  default: ({row, column}) => initialGrid[row][column]}
-)
+  key: 'cells',
+  default: ({row, column}) => initialGrid[row][column],
+})
 
 function useUpdateGrid() {
   return useRecoilCallback(({set}) => ({rows, columns}) => {
@@ -49,7 +44,6 @@ function AppProvider({children}) {
   const [state, dispatch] = React.useReducer(appReducer, {
     dogName: '',
   })
-
   const value = [state, dispatch]
   return (
     <AppStateContext.Provider value={value}>
@@ -86,7 +80,6 @@ function Grid() {
 function Cell({row, column}) {
   const [cell, setCell] = useRecoilState(cellAtoms({row, column}))
   const handleClick = () => setCell(Math.random() * 100)
-
   return (
     <button
       className="cell"
@@ -127,18 +120,20 @@ function DogNameInput() {
     </form>
   )
 }
+
 function App() {
   const forceRerender = useForceRerender()
   return (
     <div className="grid-app">
       <button onClick={forceRerender}>force rerender</button>
-      {/* 🐨 wrap this in a RecoilRoot */}
-      <AppProvider>
-        <div>
-          <DogNameInput />
-          <Grid />
-        </div>
-      </AppProvider>
+      <RecoilRoot>
+        <AppProvider>
+          <div>
+            <DogNameInput />
+            <Grid />
+          </div>
+        </AppProvider>
+      </RecoilRoot>
     </div>
   )
 }
